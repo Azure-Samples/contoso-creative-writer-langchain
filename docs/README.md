@@ -12,13 +12,13 @@ products:
 - azure-openai
 - azure-bing-web
 - azure-cognitive-search
-urlFragment: contoso-creative-writer-langchain
-name: Creative Writing Assistant - Working with Agents using Prompty and Langchain 
+urlFragment: contoso-creative-writer
+name: Creative Writing Assistant - Working with Agents using Prompty (Python Implementation)
 description: Using Azure OpenAI agent with Python, integrating Bing Search API and Azure AI Search, to create articles based on user topics and instruction.
 ---
 <!-- YAML front-matter schema: https://review.learn.microsoft.com/en-us/help/contribute/samples/process/onboarding?branch=main#supported-metadata-fields-for-readmemd -->
 
-# Creative Writing Assistant: Working with Agents using Prompty and Langchain 
+# Creative Writing Assistant: Working with Agents using Prompty (Python Implementation) 
 
 [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/Azure-Samples/contoso-creative-writer) [![Open in Dev Containers](https://img.shields.io/static/v1?style=for-the-badge&label=Dev%20Containers&message=Open&color=blue&logo=visualstudiocode)](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/azure-samples/contoso-creative-writer) 
 
@@ -35,10 +35,9 @@ description: Using Azure OpenAI agent with Python, integrating Bing Search API a
 - [Deployment](#deployment)
 - [Testing the sample](#testing-the-sample)
     - [Evaluating prompt flow results](#evaluating-prompt-flow-results)
+- [Costs](#costs)
+- [Security Guidelines](#security-guidelines)
 - [Guidance](#guidance)
-    - [Region Availability](#region-availability)
-    - [Costs](#costs)
-    - [Security Guidelines](#security)
 - [Resources](#resources)
 - [Code of Conduct](#code-of-conduct)
 
@@ -216,8 +215,8 @@ To test the sample:
     ```
     
     **Important Note**: If you are running in Codespaces, you will need to change the visibility of the API's 8000 and 5173 ports to `public` in your VS Code terminal's `PORTS` tab. The ports tab should look like this:
-
-    ![Screenshot showing setting port-visibility](images/ports-resized.png)
+   
+   <img src="./images/ports.png" alt="Screenshot showing setting port-visibility" width="800px" />
 
 
     If you open the server link in a browser, you will see a URL not found error, this is because we haven't created a home url route in FastAPI. We have instead created a `/get_article` route which is used to pass context and instructions directly to the get_article.py file which runs the agent workflow.

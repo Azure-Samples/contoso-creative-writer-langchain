@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+p {
+  text-align: left;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+}
+
+main {
+  background-color: #f9fafb;
+}
+
+header, footer {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+section {
+  max-width: 800px;
+  margin: 0 auto;
+}
