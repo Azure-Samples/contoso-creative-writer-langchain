@@ -1,0 +1,50 @@
+name: creativeagent-langchain
+metadata:
+  template: creativeagent-langchain@0.0.1-beta
+services:
+  api:
+    project: ./src/api
+    language: python
+    host: containerapp
+    docker:
+      remoteBuild: true
+  web:
+    project: ./src/web
+    language: js
+    host: containerapp
+    docker:
+      remoteBuild: true
+hooks:
+  postprovision:
+    posix:
+      shell: sh
+      continueOnError: false
+      interactive: true
+      run: infra/hooks/postprovision.sh
+    windows:
+      shell: pwsh
+      continueOnError: false
+      interactive: true
+      run: infra/hooks/postprovision.ps1
+infra:
+    provider: "bicep"
+
+pipeline:
+  variables:
+    - AZURE_OPENAI_ENDPOINT
+    - AZURE_OPENAI_API_VERSION
+    - AZURE_RESOURCE_GROUP
+    - AZURE_OPENAI_4_EVAL_DEPLOYMENT_NAME
+    - AZURE_OPENAI_DEPLOYMENT_NAME
+    - AZURE_OPENAI_35_TURBO_DEPLOYMENT_NAME
+    - AZURE_SEARCH_ENDPOINT
+    - BING_SEARCH_ENDPOINT
+    - AZURE_OPENAI_NAME
+    - AZURE_CONTAINER_REGISTRY_NAME   
+    - AZURE_RESOURCE_GROUP
+    - API_SERVICE_ACA_NAME
+    - WEB_SERVICE_ACA_NAME
+    - AZURE_SEARCH_NAME
+    - WEB_SERVICE_ACA_URI
+  secrets:
+    - BING_SEARCH_KEY
