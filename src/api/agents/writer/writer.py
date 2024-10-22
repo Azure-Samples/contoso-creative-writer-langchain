@@ -3,6 +3,9 @@ import json
 from pathlib import Path
 import prompty
 from prompty.tracer import trace
+from azure.identity import DefaultAzureCredential, get_bearer_token_provider
+from langchain_openai import AzureChatOpenAI
+from langchain_prompty import create_chat_prompt
 
 
 
@@ -10,23 +13,42 @@ from prompty.tracer import trace
 def write(researchContext, research, productContext, products, assignment, feedback="No Feedback"):
     # TODO: Update this once we have the logic to parse http error codes
     try:
-        result = prompty.execute(
-            "writer.prompty",
-            parameters={"stream": True},
-            inputs={
+
+        token_provider = get_bearer_token_provider(
+        DefaultAzureCredential(), "https://cognitiveservices.azure.com/.default"
+        )
+
+        llm = AzureChatOpenAI(
+            azure_endpoint = f"https://{os.getenv('AZURE_OPENAI_NAME')}.cognitiveservices.azure.com/", 
+            api_version=os.environ["AZURE_OPENAI_API_VERSION"],
+            azure_ad_token_provider=token_provider,
+            deployment_name=os.environ["AZURE_OPENAI_4_EVAL_DEPLOYMENT_NAME"], 
+            streaming=True
+        )
+
+        PROMPT_DIR = Path(__file__).parent
+        prompt_path = PROMPT_DIR /"writer.prompty"
+        writer_prompt = create_chat_prompt(str(prompt_path))
+        prompt = writer_prompt.invoke(
+            input={
                 "researchContext": researchContext,
                 "research": research,
                 "productContext": productContext,
                 "products": products,
                 "assignment": assignment,
                 "feedback": feedback,
-            },
-        )
+            })
+        
+        # result = llm.stream(prompt.messages)
+        # result = llm.invoke(prompt.messages).content
+        for result in llm.stream(prompt.messages):
+            yield result.content
+
     except Exception as e:
         result = {
             f"An exception occured: {str(e)}"
         }
-    return result
+    # return result
 
 def process(writer):
     # parse string this chracter --- , article and feedback

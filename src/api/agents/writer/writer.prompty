@@ -11,6 +11,7 @@ model:
     api_version: 2023-07-01-preview
   parameters:
     max_tokens: 2000
+    stream: True
 sample:
   researchContext: Can you find the latest camping trends and what folks are doing in the winter?
   research: ${file:research.json}
