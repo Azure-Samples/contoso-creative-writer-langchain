@@ -1,27 +1,23 @@
 ---
 name: Editor Agent
-description: Given an article and some feedback, this agent decides whether to accept or reject the feedback.
+description:  >-
+  Given an article and some feedback, this agent decides whether
+  to accept or reject the feedback.
 authors:
   - Seth Juarez
 model:
-    api: chat
-    configuration:
-        type: azure_openai
-        azure_deployment: gpt-35-turbo
-        api_version: 2023-07-01-preview
-    parameters:
-        max_tokens: 1200
-        temperature: 0.2
-        response_format:
-          type: json_object
-inputs:
-    article:
-        type: string
-        default: " "
-    feedback:
-        type: string
-        default: " "
-sample: ${file:context.json}
+  api: chat
+  configuration:
+      type: azure_openai
+      azure_deployment: gpt-35-turbo
+      api_version: 2023-07-01-preview
+  parameters:
+    max_tokens: 1200
+    temperature: 0.2
+    response_format:
+      type: json_object
+sample: 
+  context: ${file:context.json}
 ---
 system:
 
@@ -38,7 +34,7 @@ the writer is done, you should reject the feedback, add your "editorFeedback" an
 
 {
   "decision": "reject feedback",
-  "researchFeedback": {{feedback}},
+  "researchFeedback": {{context.feedback}},
   "editorFeedback": "Your writing should be a bit more readable and brevity is always a good choice."
 }
 
@@ -49,7 +45,7 @@ and researcher need to do more work, you accept the feedback, add your "editorFe
 
 {
   "decision": "accept feedback",
-  "researchFeedback": {{feedback}},
+  "researchFeedback": {{context.feedback}},
   "editorFeedback": "A more concise opening paragraph would help create a better flow."
 }
 
@@ -64,6 +60,6 @@ You should also provide a response to the feedback if you accept it and suggest 
 user:
 Can you suggest a response to the feedback?
 # Article
-{{article}}
+{{context.article}}
 # Research Feedback
-{{feedback}}
+{{context.feedback}}
