@@ -107,7 +107,6 @@ def create(research_context, product_context, assignment_context, evaluate=True)
 
         research_result = researcher.research(research_context, researchFeedback)
         yield complete_message("researcher", research_result)
-
         yield start_message("writer")
         yield complete_message("writer", {"start": True})
         writer_result = writer.write(research_context, research_result, product_context, product_result, assignment_context, editorFeedback)
@@ -173,5 +172,4 @@ if __name__ == "__main__":
     assignment_context = '''Write a fun and engaging article that includes the research and product information. 
     The article should be between 800 and 1000 words.
     Make sure to cite sources in the article as you mention the research not at the end.'''
-
     test_create_article(research_context=research_context, product_context=product_context, assignment_context=assignment_context)
