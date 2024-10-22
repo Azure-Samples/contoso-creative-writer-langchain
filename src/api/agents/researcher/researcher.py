@@ -10,7 +10,10 @@ import prompty
 import prompty.azure
 from prompty.azure.processor import ToolCall
 from prompty.tracer import trace
-# from prompty.azure.processors import ToolCall
+from azure.identity import DefaultAzureCredential, get_bearer_token_provider
+from langchain_openai import AzureChatOpenAI
+from langchain_prompty import create_chat_prompt
+
 
 load_dotenv()
 
@@ -86,17 +89,39 @@ def execute(instructions: str, feedback: str = "No feedback"):
         "find_news": find_news,
     }
 
-    fns: List[ToolCall] = prompty.execute(
-        "researcher.prompty", inputs={"instructions": instructions, "feedback": feedback}
+    token_provider = get_bearer_token_provider(
+        DefaultAzureCredential(), "https://cognitiveservices.azure.com/.default"
     )
+
+    llm = AzureChatOpenAI(
+        azure_endpoint = f"https://{os.getenv('AZURE_OPENAI_NAME')}.cognitiveservices.azure.com/", 
+        api_version=os.environ["AZURE_OPENAI_API_VERSION"],
+        azure_ad_token_provider=token_provider,
+        deployment_name=os.environ["AZURE_OPENAI_35_TURBO_DEPLOYMENT_NAME"],
+    )
+
+
+    BASE_DIR = Path(__file__).parent
+
+    with open(BASE_DIR/"functions.json") as f:
+        schema = json.load(f)
+
+    llm_with_tools = llm.bind_tools(tools=schema)
+
+    prompt_path = BASE_DIR /"researcher.prompty"
+    researcher_prompt = create_chat_prompt(str(prompt_path))
+    full_prompt = researcher_prompt.invoke(input={"instructions": instructions, "feedback": feedback})
+    response = llm_with_tools.invoke(full_prompt.messages)
+    
+    fns: List[ToolCall] = response.tool_calls
 
     research = []
     for f in fns:
-        fn = functions[f.name]
-        args = json.loads(f.arguments)
+        fn = functions[f['name']]
+        args = f['args']
         r = fn(**args)
         research.append(
-            {"id": f.id, "function": f.name, "arguments": args, "result": r}
+            {"id": f['id'], "function": f['name'], "arguments": args, "result": r}
         )
 
     return research

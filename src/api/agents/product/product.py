@@ -3,7 +3,6 @@ import json
 from typing import Dict, List
 from azure.identity import DefaultAzureCredential, get_bearer_token_provider
 from prompty.tracer import trace
-from openai import AzureOpenAI
 from dotenv import load_dotenv
 from pathlib import Path
 from azure.search.documents import SearchClient
@@ -14,7 +13,7 @@ from azure.search.documents.models import (
     QueryAnswerType,
 )
 
-from langchain_openai import AzureChatOpenAI
+from langchain_openai import AzureChatOpenAI, AzureOpenAIEmbeddings
 from langchain_prompty import create_chat_prompt
 
 load_dotenv()
@@ -32,15 +31,15 @@ def generate_embeddings(queries: List[str]) -> str:
         DefaultAzureCredential(), "https://cognitiveservices.azure.com/.default"
     )
 
-    client = AzureOpenAI(
+    client = AzureOpenAIEmbeddings(
         azure_endpoint = f"https://{os.getenv('AZURE_OPENAI_NAME')}.cognitiveservices.azure.com/", 
         api_version=os.environ["AZURE_OPENAI_API_VERSION"],
-        azure_ad_token_provider=token_provider
+        azure_ad_token_provider=token_provider,
+        model="text-embedding-ada-002"
     )
 
-    embeddings = client.embeddings.create(input=queries, model="text-embedding-ada-002")
-    embs = [emb.embedding for emb in embeddings.data]
-    items = [{"item": queries[i], "embedding": embs[i]} for i in range(len(queries))]
+    embeddings = client.embed_documents(queries)
+    items = [{"item": queries[i], "embedding": embeddings[i]} for i in range(len(queries))]
 
     return items
 
@@ -105,7 +104,7 @@ def find_products(context: str) -> Dict[str, any]:
 
     # Get product queries
     queries = llm.invoke(prompt.messages)
-    qs = json.loads(queries)
+    qs = json.loads(queries.content)
 
     # Generate embeddings
     items = generate_embeddings(qs)
